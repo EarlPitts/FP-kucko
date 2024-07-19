@@ -9,11 +9,13 @@
 ## Design Pattern
 
 - Scala
+- Agda
 
 ---
 
 # Polimorfizmus
 
+- tobb tipus kifejezese egy szimbolummal
 - altalanosabb kod
 - kod ujrahasznalat
 
@@ -253,20 +255,6 @@ implicit def listEq[A](implicit equalA: Equal[A]): Equal[List[A]] = new Equal[Li
 - pont emiatt konnyebb elrontani, tul sok mindent megenged, nem segit a nyelv
 - nincs megkotes a szamukon
 - nincs "orphan implicit"
-
----
-
-- implicitek is fugghetnek egymastol
-- irhatunk implicitet olyan tipusokhoz, amik nem a mienk
-
-```scala
-implicit def listEq[A: Equal]: Equal[List[A]] = new Equal[List[A]]:
-  def eq(l1: List[A], l2: List[A]): Boolean = (l1,l2) match 
-    case (x :: xs, y :: ys) => if Equal[A].eq(x,y) then eq(xs, ys) else false
-    case (_ :: _, Nil) => false
-    case (Nil, _ :: _) => false
-    case (Nil, Nil) => true
-```
 
 ---
 
