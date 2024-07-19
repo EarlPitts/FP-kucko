@@ -46,3 +46,46 @@ val segments = List(s1,s2,s3,s4)
 elementOf(s4, segments)
 
 Equal[List[Segment]].eq(segments, segments)
+
+//--------------//
+
+sealed trait Ordering
+case object LT extends Ordering
+case object EQ extends Ordering
+case object GT extends Ordering
+
+trait Order[A]:
+  def compare(x: A, y: A): Ordering
+
+object Order:
+  def apply[A](implicit instance: Order[A]): Order[A] = instance
+
+case class Dog(name: String, age: Int)
+
+object Dog:
+  implicit val dogOrderingAge: Order[Dog] = new Order[Dog]:
+    def compare(x: Dog, y: Dog): Ordering =
+      if x.age > y.age then GT
+      else if x.age < y.age then LT
+      else EQ
+
+  // implicit val dogOrderingName: Order[Dog] = new Order[Dog]:
+  //   def compare(x: Dog, y: Dog): Ordering =
+  //     if x.name > y.name then GT
+  //     else if x.name < y.name then LT
+  //     else EQ
+  
+
+def sort[A: Order](ns: List[A]): List[A] = ns match
+  case Nil => Nil
+  case n::ns =>
+    val lower = sort(ns.filter(Order[A].compare(_,n) == LT))
+    val higher = sort(ns.filter(Order[A].compare(_,n) == GT))
+    lower ++ List(n) ++ higher
+
+val d1 = Dog("Mazsola", 5)
+val d2 = Dog("Berci", 7)
+val d3 = Dog("Morgo", 3)
+    
+sort(List(d1,d2,d3))
+

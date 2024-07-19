@@ -63,6 +63,7 @@ interface Equal<A> {
 class Segment {
     public String segmentId;
     public int customerId;
+}
 ```
 
 ---
@@ -79,6 +80,7 @@ class Segment implements Equal<Segment> {
         return this.customerId == other.customerId
         && this.segmentId.equals(other.segmentId);
     }
+}
 ```
 ---
 
@@ -207,6 +209,16 @@ implicit def listEq[A: Equal]: Equal[List[A]] = new Equal[List[A]]:
         case (Nil, _ :: _) => false
         case (Nil, Nil) => true
 ```
+---
+
+```scala
+implicit def listEq[A](implicit equalA: Equal[A]): Equal[List[A]] = new Equal[List[A]]:
+    def eq(l1: List[A], l2: List[A]): Boolean = (l1,l2) match 
+        case (x :: xs, y :: ys) => if equalA.eq(x,y) then eq(xs, ys) else false
+        case (_ :: _, Nil) => false
+        case (Nil, _ :: _) => false
+        case (Nil, Nil) => true
+```
 
 ---
 
@@ -241,3 +253,32 @@ implicit def listEq[A: Equal]: Equal[List[A]] = new Equal[List[A]]:
 - pont emiatt konnyebb elrontani, tul sok mindent megenged, nem segit a nyelv
 - nincs megkotes a szamukon
 - nincs "orphan implicit"
+
+---
+
+- implicitek is fugghetnek egymastol
+- irhatunk implicitet olyan tipusokhoz, amik nem a mienk
+
+```scala
+implicit def listEq[A: Equal]: Equal[List[A]] = new Equal[List[A]]:
+  def eq(l1: List[A], l2: List[A]): Boolean = (l1,l2) match 
+    case (x :: xs, y :: ys) => if Equal[A].eq(x,y) then eq(xs, ys) else false
+    case (_ :: _, Nil) => false
+    case (Nil, _ :: _) => false
+    case (Nil, Nil) => true
+```
+
+---
+
+# Implicit Scope
+
+1. lokalis definiciok
+2. companion object
+3. importok
+
+---
+
+- [Cats Typeclassok](https://typelevel.org/cats/typeclasses.html)
+- [George Wilson - Type Class: The Ultimate Ad Hoc](https://www.youtube.com/watch?v=2EdQFCP5mZ8)
+- [Typeclassopedia](https://wiki.haskell.org/Typeclassopedia)
+- Essential Scala: Type Classes fejezet
