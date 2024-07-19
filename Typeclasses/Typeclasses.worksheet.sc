@@ -1,13 +1,30 @@
+/*
+ _____                     _                         
+|_   _|                   | |                        
+  | |_   _ _ __   ___  ___| | __ _ ___ ___  ___  ___ 
+  | | | | | '_ \ / _ \/ __| |/ _` / __/ __|/ _ \/ __|
+  | | |_| | |_) |  __/ (__| | (_| \__ \__ \  __/\__ \
+  \_/\__, | .__/ \___|\___|_|\__,_|___/___/\___||___/
+      __/ | |                                        
+     |___/|_|                                        
+*/
+
+// --- Parametric Polymorphism --- //
+
 def reverse[A]: List[A] => List[A] =
   xs => xs match
     case Nil => Nil
     case x :: xs => reverse(xs) :+ x
 
+// --- Ad-Hoc Polymorphism --- //
+
+//------- Equality --------//
+
 trait Equal[A]:
   def eq(x: A, y: A): Boolean
 
 object Equal:
-  def apply[A](implicit instance: Equal[A]): Equal[A] = instance
+  def apply[A](implicit instance: Equal[A]): Equal[A] = instance // "Summons" the implicit instance when given the type parameter
 
   implicit def listEq[A: Equal]: Equal[List[A]] = new Equal[List[A]]:
     def eq(l1: List[A], l2: List[A]): Boolean = (l1,l2) match 
@@ -47,7 +64,7 @@ elementOf(s4, segments)
 
 Equal[List[Segment]].eq(segments, segments)
 
-//--------------//
+//------- Ordering --------//
 
 sealed trait Ordering
 case object LT extends Ordering
@@ -88,4 +105,3 @@ val d2 = Dog("Berci", 7)
 val d3 = Dog("Morgo", 3)
     
 sort(List(d1,d2,d3))
-
