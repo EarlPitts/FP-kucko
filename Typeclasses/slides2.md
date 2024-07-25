@@ -34,6 +34,7 @@ combine(combine(x, y), z) == combine(x, combine(y, z))
 - Biner operator:
     - Asszociativ
 - Egysegelem
+- NotEmptyList
 
 ---
 
@@ -97,4 +98,8 @@ pure(f).ap(pure(x)) == pure(f(x))
 
 # Foldable
 
+TODO
+
 # Traversable
+
+TODO
