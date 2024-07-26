@@ -2,6 +2,8 @@
 - higher kinded types
 - for comprhension for my type
 - Deriving typeclasses
+- cats lib:
+    - comes a bunch of functionality if you implement 2-3 functions
 
 ---
 
