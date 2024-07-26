@@ -8,6 +8,7 @@
 //      |___/|_|                                        
 
 import Types.*
+import cats.data.NonEmptyList
 
 //------- Semigroups --------//
 
@@ -26,6 +27,9 @@ object Semigroup:
   implicit def listSemigroup[A]: Semigroup[List[A]] = new Semigroup[List[A]]:
     def combine(x: List[A], y: List[A]): List[A] = x ++ y
 
+  implicit def nonEmptyListSemigroup[A]: Semigroup[NonEmptyList[A]] = new Semigroup[NonEmptyList[A]]:
+    def combine(x: NonEmptyList[A], y: NonEmptyList[A]): NonEmptyList[A] = x ::: y 
+
   implicit def intWithAdditionSemigroup[A]: Semigroup[Int] = new Semigroup[Int]:
     def combine(x: Int, y: Int): Int = x + y
 
@@ -34,6 +38,7 @@ object Semigroup:
 
 Semigroup[Boolean].combine(true, false)
 Semigroup[List[Int]].combine(List(1,2,3), List(4,5,6))
+Semigroup[NonEmptyList[Int]].combine(NonEmptyList(1,List(2,3)), NonEmptyList(4,List(5,6)))
 
 Semigroup.apply[Int](using Semigroup.intWithAdditionSemigroup).combine(3, 3)
 // Semigroup.apply[Int](using Semigroup.intWithMultiplicationSemigroup).combine(3, 3)
@@ -50,6 +55,9 @@ object Monoid:
   implicit def listMonoid[A]: Monoid[List[A]] = new Monoid[List[A]]:
     def empty: List[A] = List.empty
 
+  implicit def nonEmptyListMonoid[A]: Monoid[NonEmptyList[A]] = new Monoid[NonEmptyList[A]]:
+    def empty: NonEmptyList[A] = ???
+
   // implicit def intWithAdditionMonoid[A]: Monoid[Int] = new Monoid[Int]:
   //   def empty: Int = 0
 
@@ -65,7 +73,7 @@ Monoid[All].combine(All(true), All(false))
 //------- Functors --------//
 
 trait Functor[F[_]]:
-  def map[A, B](a: F[A], f: A => B): F[B]
+  def map[A, B](fa: F[A], f: A => B): F[B]
 
 object Functor:
   def apply[F[_]](implicit instance: Functor[F]) = instance
@@ -94,6 +102,7 @@ object Functor:
 Functor[Option].map(Some(2), _ + 1)
 Functor[Option].map(Option.empty[Int], _ + 1)
 Functor[List].map(List(1,2,3), _ + 1)
+Functor[List].map(List.empty[Int], _ + 1)
 
 //------- Applicatives --------//
 
@@ -143,6 +152,7 @@ object Monad:
     private def flat[A](ffa: Option[Option[A]]): Option[A] = ffa match
       case Some(Some(x)) => Some(x)
       case _ => None
+
     def flatMap[A, B](fa: Option[A], f: A => Option[B]): Option[B] = fa match
       case None => None
       case sa => flat(map(sa,f))
@@ -234,10 +244,6 @@ object Types:
     def fromList[A: Order](l: List[A]): Tree[A] =
       l.foldl(Leaf: Tree[A])(insertTree)
 
-// instance Foldable Tree where
-//   foldr f z (Leaf a) = f a z
-//   foldr f z (Node l r) = foldr f (foldr f z r) l
-
     implicit val foldableInstance: Foldable[Tree] = new Foldable[Tree]:
       def foldLeft[A, B](fa: Tree[A], b: B)(f: (B, A) => B): B = fa match
         case Leaf => b
@@ -246,4 +252,3 @@ object Types:
       // def foldRight[A, B](fa: Tree[A], lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] = fa match
       //   case Leaf => lb
       //   case Node(l, v, r) => foldRight(l, foldRight(
-
