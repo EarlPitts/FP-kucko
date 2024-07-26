@@ -26,17 +26,17 @@ object Semigroup:
   implicit def listSemigroup[A]: Semigroup[List[A]] = new Semigroup[List[A]]:
     def combine(x: List[A], y: List[A]): List[A] = x ++ y
 
-  // implicit def intWithAdditionSemigroup[A]: Semigroup[Int] = new Semigroup[Int]:
-  //   def combine(x: Int, y: Int): Int = x + y
+  implicit def intWithAdditionSemigroup[A]: Semigroup[Int] = new Semigroup[Int]:
+    def combine(x: Int, y: Int): Int = x + y
 
-  implicit def intWithMultiplicationSemigroup[A]: Semigroup[Int] = new Semigroup[Int]:
-    def combine(x: Int, y: Int): Int = x * y
+  // implicit def intWithMultiplicationSemigroup[A]: Semigroup[Int] = new Semigroup[Int]:
+  //   def combine(x: Int, y: Int): Int = x * y
 
 Semigroup[Boolean].combine(true, false)
 Semigroup[List[Int]].combine(List(1,2,3), List(4,5,6))
 
-// Semigroup.apply[Int](using Semigroup.intWithAdditionSemigroup).combine(3, 3)
-Semigroup.apply[Int](using Semigroup.intWithMultiplicationSemigroup).combine(3, 3)
+Semigroup.apply[Int](using Semigroup.intWithAdditionSemigroup).combine(3, 3)
+// Semigroup.apply[Int](using Semigroup.intWithMultiplicationSemigroup).combine(3, 3)
 
 //------- Monoids --------//
 
@@ -177,6 +177,28 @@ List(1,2,3).foldLeft(Monoid[Int].empty)(Monoid[Int].combine)
 List(true,false,true).map(All(_)).foldLeft(Monoid[All].empty)(Monoid[All].combine)
 List(true,false,true).map(Any(_)).foldLeft(Monoid[Any].empty)(Monoid[Any].combine)
 
+
+//------- Foldable --------//
+
+import cats.implicits.*
+import cats.Foldable
+
+List.range(1,10).foldMap(identity)
+
+Foldable[Tree].foldLeft(Tree.fromList(List(4,1,9,7,13,2,27)), 0)(_ + _)
+
+//------- Traversable --------//
+
+import cats.Traverse
+
+Traverse[List].sequence(List(Option(2), Option(3)))
+Traverse[List].sequence(List(Option(2), None, Option(3)))
+Traverse[Option].sequence(Option(List(1,2,3)))
+
+Traverse[List].traverse(List(1,2,3,4))(Option(_))
+Traverse[List].traverse(List(1,2,3,4))((n: Int) => if n < 5 then Option(n) else None)
+Traverse[List].traverse(List(1,2,3,4,5))((n: Int) => if n < 5 then Option(n) else None)
+
 //------- Helper stuff --------//
 
 object Types:
@@ -197,3 +219,31 @@ object Types:
 
     implicit val anyMonoid: Monoid[Any] = new Monoid[Any]:
       def empty: Any = Any(false)
+
+  import cats.Order
+  import cats.Eval
+  enum Tree[+A]:
+    case Leaf
+    case Node(l: Tree[A], v: A, r: Tree[A])
+
+  object Tree:
+    def insertTree[A: Order](t: Tree[A], a: A): Tree[A] = t match
+      case Leaf => Node(Leaf, a, Leaf)
+      case Node(l,v,r) => if Order[A].gt(a, v) then Node(l,v,insertTree(r,a)) else Node(insertTree(l,a),v,r)
+
+    def fromList[A: Order](l: List[A]): Tree[A] =
+      l.foldl(Leaf: Tree[A])(insertTree)
+
+// instance Foldable Tree where
+//   foldr f z (Leaf a) = f a z
+//   foldr f z (Node l r) = foldr f (foldr f z r) l
+
+    implicit val foldableInstance: Foldable[Tree] = new Foldable[Tree]:
+      def foldLeft[A, B](fa: Tree[A], b: B)(f: (B, A) => B): B = fa match
+        case Leaf => b
+        case Node(l, v, r) => f(foldLeft(l, foldLeft(r, b)(f))(f), v)
+      def foldRight[A, B](fa: Tree[A], lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] = ???
+      // def foldRight[A, B](fa: Tree[A], lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] = fa match
+      //   case Leaf => lb
+      //   case Node(l, v, r) => foldRight(l, foldRight(
+

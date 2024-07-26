@@ -1,18 +1,9 @@
-- implicit class for syntax
-- higher kinded types
-- for comprhension for my type
-- Deriving typeclasses
-- cats lib:
-    - comes a bunch of functionality if you implement 2-3 functions
-
----
-
 # Semigroup
 
 - Biner operator:
     - Asszociativ
 - Kombinalhatosag
-- Parallelism
+- Parallelizmus
 - Map/reduce
 - Pl.:
     - Termeszetes szamok osszeadassal
@@ -36,7 +27,11 @@ combine(combine(x, y), z) == combine(x, combine(y, z))
 - Biner operator:
     - Asszociativ
 - Egysegelem
-- NotEmptyList
+- Pl.:
+    - Lista (ures lista az egysegelem)
+    - (ℕ,+) (0 egysegelemmel)
+    - (ℕ,*) (1 egysegelemmel)
+- Semigroup, de nem Monoid: `NotEmptyList`
 
 ---
 
@@ -53,9 +48,10 @@ combine(combine(x, y), z) == combine(x, combine(y, z))
 
 # Functor
 
+- Higher Kinded Type: `Functor[F[_]]`
 - "Mappable"
-- Higher Kinded Type
 - Intuicio: kontextus, struktura, kontener
+- Beemelunk egy fuggvenyt valami kontextusba
 - Pl.:
     - List
     - Option
@@ -70,16 +66,17 @@ combine(combine(x, y), z) == combine(x, combine(y, z))
 map(fa, identity) == identity(fa)
 
 // Mapping the composition is the same as composing maps
+// (Can be used for optimization)
 map(map(fa, f), g) == map(fa, f compose g)
 ```
 
 ---
 
-# Apply + Applicative
+# Applicative
 
 - "Fuggveny hivas strukturan belul"
+- Beagyazhatunk ertekeket egy "effect-mentes" alapertelmezett kontextusba: `pure`
 - Effects
-- Parallelism
 
 ---
 
@@ -91,17 +88,43 @@ pure(identity).ap(fa) == fa
 pure f <*> pure x = pure (f x)
 pure(f).ap(pure(x)) == pure(f(x))
 ```
-
 ---
 
 # Monad
 
 - Fuggoseg
+- `flatMap[A, B, M[_]](ma: M[A], f: A => M[B])`
+- "Imperativ DSL"
+
+---
+
+```scala
+// Identity laws
+pure(a).flatMap(f) == f(a)
+m.flatMap(pure(_)) == m
+```
+
+---
 
 # Foldable
 
-TODO
+- Foldolhato strukturak
+- Ossze lehet "lapitani" egy ertekke
+- Pl.: Listak, fak (nem kecske)
+- Monoidokkal/Semigroupokkal jo baratok
+
+---
 
 # Traversable
 
-TODO
+- Foldable es Functor
+- "Effectful map"
+
+---
+
+# Miert jo ez nekunk?
+
+- Hasznos eszkoztar
+- Laws!
+- Cats
+- Megadok 2-3 fuggvenyt, kapok cserebe masik 100-at
