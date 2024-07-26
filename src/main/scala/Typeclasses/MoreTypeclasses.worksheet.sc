@@ -249,6 +249,3 @@ object Types:
         case Leaf => b
         case Node(l, v, r) => f(foldLeft(l, foldLeft(r, b)(f))(f), v)
       def foldRight[A, B](fa: Tree[A], lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] = ???
-      // def foldRight[A, B](fa: Tree[A], lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] = fa match
-      //   case Leaf => lb
-      //   case Node(l, v, r) => foldRight(l, foldRight(
