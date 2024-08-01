@@ -85,7 +85,6 @@ map(map(fa, f), g) == map(fa, f compose g)
 pure(identity).ap(fa) == fa
 
 // Homomorphism
-pure f <*> pure x = pure (f x)
 pure(f).ap(pure(x)) == pure(f(x))
 ```
 ---
