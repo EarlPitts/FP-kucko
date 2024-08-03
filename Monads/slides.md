@@ -70,6 +70,7 @@ f(a).flatMap(g)
 - Az input a kontextus resze
 - "Read-only"
 - Cats-ben, ScalaZ-ben Kleisli
+- Kenyelmesen lehet egy extra parametert minden fuggvenynek atadni
 - Dependency-injection
 
 ---

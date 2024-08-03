@@ -8,7 +8,6 @@
 
 import cats.Monad
 import cats.implicits.*
-import cats.effect.*
 
 val f: Int => Int = _ + 1
 List(f).ap(List(1))
