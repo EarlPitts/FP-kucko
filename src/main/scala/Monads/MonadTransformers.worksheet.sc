@@ -1,12 +1,34 @@
-package MonadTransformers
-
 import cats.*
 import cats.implicits.*
 import cats.effect.*
 import cats.effect.std.Console
 import cats.effect.std.Env
 
+import cats.data.*
+
+//------- The Problem --------//
+val nested = Option(Option(3))
+
+// We have to map twice to access the inner value
+nested.map(_.map(_ + 1))
+
+import cats.data.Writer
+
+type Nested = Writer[List[String], Option[Int]]
+
+def subtractOne(n: Int): Nested =
+  if n == 0
+    then List("Can't do that!").tell >> Option.empty[Int].pure
+    else List("Did it!").tell >> Option(n-1).pure
+
+// Same here, have to map twice for this
+subtractOne(3).map(_.map(_ + 1))
+
 //------- OptionT --------//
+
+OptionT(nested).map(_ + 1).value
+OptionT(subtractOne(3)).map(_ + 1).value
+
 import cats.data.Writer
 import cats.data.OptionT
 
@@ -25,10 +47,8 @@ def addAll(a: String, b: String, c: String): Logged[Option[Int]] =
   yield a + b + c
   result.value
 
-@main
-def main: Unit =
-  println(addAll("1", "2", "3").run)
-  println(addAll("1", "a", "3").run)
+addAll("1", "2", "3").run
+addAll("1", "a", "3").run
 
 //------- ReaderT --------//
 import cats.data.ReaderT
