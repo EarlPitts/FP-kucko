@@ -8,6 +8,7 @@
 
 import cats.Monad
 import cats.implicits.*
+import cats.effect.*
 
 val f: Int => Int = _ + 1
 List(f).ap(List(1))
@@ -16,6 +17,12 @@ List(1, 2, 3).flatMap(_ => List(2))
 
 //------- Id --------//
 type Id[A] = A
+
+object Id:
+  given Monad[Id] with
+    def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] = f(fa)
+    def pure[A](x: A): Id[A] = x
+    def tailRecM[A, B](a: A)(f: A => Id[Either[A, B]]): Id[B] = ???
 
 Monad[Id].pure(2)
 2.pure[Id]
@@ -259,5 +266,3 @@ val program: State[Int, String] = for {
 } yield s"$a then $b then $c then $d"
 
 program.run(3).value
-
-//------- Monad Transformers--------//
