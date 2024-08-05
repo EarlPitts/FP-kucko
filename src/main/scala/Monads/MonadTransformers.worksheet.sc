@@ -7,7 +7,7 @@ import cats.effect.std.Env
 import cats.data.*
 
 //------- The Problem --------//
-val nested = Option(Option(3))
+val nested = List(Option(3))
 
 // We have to map twice to access the inner value
 nested.map(_.map(_ + 1))
@@ -25,12 +25,10 @@ def subtractOne(n: Int): Nested =
 subtractOne(3).map(_.map(_ + 1))
 
 //------- OptionT --------//
+import cats.data.OptionT
 
 OptionT(nested).map(_ + 1).value
 OptionT(subtractOne(3)).map(_ + 1).value
-
-import cats.data.Writer
-import cats.data.OptionT
 
 type Logged[A] = Writer[List[String], A]
 

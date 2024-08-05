@@ -10,26 +10,22 @@ import cats.Monad
 import cats.implicits.*
 import cats.effect.*
 
-val f: Int => Int = _ + 1
-List(f).ap(List(1))
-
-List(1, 2, 3).flatMap(_ => List(2))
-
 //------- Id --------//
 type Id[A] = A
 
 object Id:
   given Monad[Id] with
-    def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] = f(fa)
     def pure[A](x: A): Id[A] = x
+    def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] = f(fa)
     def tailRecM[A, B](a: A)(f: A => Id[Either[A, B]]): Id[B] = ???
 
 Monad[Id].pure(2)
 2.pure[Id]
 
-val a: Id[Int] = 3
-a.flatMap(_ + 3)
-a.flatMap(_ => 4.pure[Id])
+val a: Id[String] = "a"
+a.flatMap(_ ++ "b")
+a.flatMap(_ => "c".pure[Id])
+a >> "c".pure[Id]
 
 //------- List --------//
 val even: Int => Boolean = _ % 2 == 0
@@ -63,17 +59,18 @@ type Age = Int
 type UserId = String
 case class User(name: Name, age: Age, id: UserId)
 
-val validAge: Age => Option[Age] = n => if n > 0 then Option(n) else None
-val validName: Name => Option[Name] = name =>
-  if name.length < 100 then Option(name) else None
-val validId: UserId => Option[UserId] = id =>
-  if id.contains("validId") then Option(id) else None
-
+// Smart constructor
 def makeUser(name: Name, age: Age, id: UserId): Option[User] = for
   name <- validName(name)
   age <- validAge(age)
   id <- validId(id)
 yield User(name, age, id)
+
+val validAge: Age => Option[Age] = n => if n > 0 then Option(n) else None
+val validName: Name => Option[Name] = name =>
+  if name.length < 100 then Option(name) else None
+val validId: UserId => Option[UserId] = id =>
+  if id.contains("validId") then Option(id) else None
 
 val longName = (1 to 101).toList.mkString
 makeUser("Karcsi", 92, "123validId456")
@@ -110,6 +107,9 @@ makeUser2("Bela", 2, "random")
 
 //------- Reader --------//
 import cats.data.Reader // also known as Kleisli
+
+case class MyReader[A,B](run: A => B)
+MyReader[Int,Int](_ + 1).run(2)
 
 val multiplyByTwo = Reader[Int, Int](n => n * 2)
 val addOne = Reader[Int, Int](n => n + 1)
@@ -171,7 +171,7 @@ val someComputation: Logged[Int] = for {
   a <- 10.pure[Logged]
   _ <- "Second computation\n".tell
   b <- 32.pure[Logged]
-  result <- (a + b).writer("Adding up results\n")
+  result <- (a + b).writer("Adding up results\n") // "Adding up results\n".tell >> (a + b).pure[Logged]
 } yield a + b
 
 val someOtherComputation: Logged[Int] = for {
@@ -205,14 +205,14 @@ yield a + b
 finalResult.mapWritten(_.toUpperCase).run
 
 // Transform both
+finalResult.mapBoth((log, res) => (log.toUpperCase, res * 100)).run
+
 finalResult
   .bimap(
     _.toUpperCase,
     res => res * 100
   )
   .run
-
-finalResult.mapBoth((log, res) => (log.toUpperCase, res * 100)).run
 
 // Change value in context to identity value
 finalResult.reset
@@ -250,11 +250,11 @@ val both = for {
 both.runS(2).value
 both.runA(2).value
 
-val getting = State.get[Int]              // Gets the current state from the context
-val setting = State.set[Int]              // Sets the current state, discarding the previous one
-val puring = State.pure[Int, Int]         // Wraps a pure value, preserving the state
+val getting    = State.get[Int]           // Gets the current state from the context
+val setting    = State.set[Int]           // Sets the current state, discarding the previous one
+val puring     = State.pure[Int, Int]     // Wraps a pure value, preserving the state
 val inspecting = State.inspect[Int, Int]  // Uses current state to return some value
-val modifying = State.modify[Int]         // Modifies current state based on previous one
+val modifying  = State.modify[Int]        // Modifies current state based on previous one
 
 val program: State[Int, String] = for {
   a <- getting            // 3
