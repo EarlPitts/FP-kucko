@@ -27,8 +27,10 @@ subtractOne(3).map(_.map(_ + 1))
 //------- OptionT --------//
 import cats.data.OptionT
 
-OptionT(nested).map(_ + 1).value
-OptionT(subtractOne(3)).map(_ + 1).value
+type WriterA[A] = Writer[List[String], A]
+
+OptionT[List, Int](nested).map(_ + 1).value
+OptionT[WriterA, Int](subtractOne(3)).map(_ + 1).value
 
 type Logged[A] = Writer[List[String], A]
 

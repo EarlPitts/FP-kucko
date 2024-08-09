@@ -172,7 +172,7 @@ val someComputation: Logged[Int] = for {
   _ <- "Second computation\n".tell
   b <- 32.pure[Logged]
   result <- (a + b).writer("Adding up results\n") // "Adding up results\n".tell >> (a + b).pure[Logged]
-} yield a + b
+} yield result
 
 val someOtherComputation: Logged[Int] = for {
   _ <- "Third computation\n".tell
@@ -244,7 +244,7 @@ val step2 = State[Int, String] { num =>
 
 val both = for {
   a <- step1 // Update state to 2 + 1 = 3
-  b <- step2 // Update state to 2 * 3 = 6
+  b <- step2 // Update state to 3 * 2 = 6
 } yield (a, b)
 
 both.runS(2).value
