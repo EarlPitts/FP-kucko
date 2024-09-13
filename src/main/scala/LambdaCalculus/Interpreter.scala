@@ -16,11 +16,11 @@ import RawTerm.*
 lazy val p: Parsley[RawTerm] = pVar <|> pAbs <|> pApp
 
 lazy val pApp: Parsley[RawTmApp] = for
-  _  <- char('(')
+  _ <- char('(')
   t1 <- p
-  _  <- spaces
+  _ <- spaces
   t2 <- p
-  _  <- char(')')
+  _ <- char(')')
 yield RawTmApp(t1, t2)
 
 lazy val pVar: Parsley[RawTmVar] = some(lower).map(x => RawTmVar(x.toString()))
@@ -30,7 +30,7 @@ lazy val pAbs: Parsley[RawTmAbs] = for
   v <- some(lower).map(_.toString())
   _ <- char('.')
   t <- p
-yield RawTmAbs(v,t)
+yield RawTmAbs(v, t)
 
 enum RawTerm:
   case RawTmVar(n: Name)
@@ -93,6 +93,6 @@ object Term:
     case TmApp(t1, t2) => reduce(ctx, t1).map2(Some(t2))(TmApp)
     case _             => None
 
-  def eval(ctx: Context, t: Term): Option[Term] = reduce(ctx,t) match
-    case None => Some(t)
-    case Some(t) => eval(ctx,t)
+  def eval(ctx: Context, t: Term): Option[Term] = reduce(ctx, t) match
+    case None    => Some(t)
+    case Some(t) => eval(ctx, t)
