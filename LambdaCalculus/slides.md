@@ -100,6 +100,24 @@ S(SI(K(S(S(SSI)I))))
 
 ---
 
+# General Recusion
+
+- Y combinator (also Z for strict languages)
+- Y = λf.((λx.f (x x) (λx.f (x x))))
+
+---
+
+```
+λf.(λx.f (x x)) (λx.f (x x))
+λf.f((λx.f (x x)) (λx.f (x x)))
+λf.ff((λx.f (x x)) (λx.f (x x)))
+λf.fff((λx.f (x x)) (λx.f (x x)))
+λf.ffff((λx.f (x x)) (λx.f (x x)))
+...
+```
+
+
+
 # Church Encoding
 
 - Representing data types with functions
