@@ -20,14 +20,15 @@ def pair[A](fst: A, snd: A)(b: (A, A) => A): A = b(fst, snd)
 def fst[A](p: ((A,A) => A) => A): A = p(tru)
 def snd[A](p: ((A,A) => A) => A): A = p(fls)
 
+toBool(snd(pair(tru,fls)))
+
 // Church Numerals
 def c0[A](s: A => A, z: A): A = z
 def c1[A](s: A => A, z: A): A = s(z)
 def c2[A](s: A => A, z: A): A = s(s(z))
 def c3[A](s: A => A, z: A): A = s(s(s(z)))
 
-def scc[A](n: ((A => A), A) => A)(s: (A => A), z: A): A =
-  s(n(s, z))
+def scc[A](n: ((A => A), A) => A)(s: (A => A), z: A): A = s(n(s, z))
 
 def toNum(n: ((Int => Int), Int) => Int): Int = n((_ + 1), 0)
 
@@ -36,11 +37,8 @@ type Num[A] = ((A => A), A) => A
 def plus[A](m: Num[A])(n: Num[A])(s: (A => A), z: A): A = m(s,n(s,z))
 // def times[A](m: Num[A], n: Num[A])(s: (A => A), z: A): A = m(plus(n),c0)
 
-
 toNum(c2)
 toNum(scc(c2))
 toNum(scc(scc(c2)))
 
 toNum(plus[Int](c2)(c3))
-
-toBool(snd(pair(tru,fls)))

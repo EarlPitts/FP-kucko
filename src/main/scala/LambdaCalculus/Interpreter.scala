@@ -3,41 +3,34 @@ package LambdaCalculus
 import cats.*
 import cats.implicits.*
 
-// enum Term:
-//   case App(t1: Term, t2: Term)
-//   case Abs(v: Var, t: Term)
-//   case Var(name: String)
-//
-// val t = Abs(Var("x"),
-
 import collection.immutable.List.*
-// import parsley.Success
-// import parsley.Parsley
-// import parsley.character.{char, lower, spaces}
-// import parsley.combinator.{some, eof}
-// import parsley.implicits.character.{charLift, stringLift}
+import parsley.Success
+import parsley.Parsley
+import parsley.character.{char, lower, spaces}
+import parsley.combinator.{some, eof}
+import parsley.implicits.character.{charLift, stringLift}
 
 import Term.*
 import RawTerm.*
 
-// lazy val p: Parsley[RawTerm] = pVar <|> pAbs <|> pApp
-//
-// lazy val pApp: Parsley[RawTmApp] = for {
-//   _  <- char('(')
-//   t1 <- p
-//   _  <- spaces
-//   t2 <- p
-//   _  <- char(')')
-// } yield RawTmApp(t1, t2)
-//
-// lazy val pVar: Parsley[RawTmVar] = some(lower).map(x => RawTmVar(x.toString()))
-//
-// lazy val pAbs: Parsley[RawTmAbs] = for {
-//   _ <- char('\\')
-//   v <- some(lower).map(_.toString())
-//   _ <- char('.')
-//   t <- p
-// } yield RawTmAbs(v,t)
+lazy val p: Parsley[RawTerm] = pVar <|> pAbs <|> pApp
+
+lazy val pApp: Parsley[RawTmApp] = for
+  _  <- char('(')
+  t1 <- p
+  _  <- spaces
+  t2 <- p
+  _  <- char(')')
+yield RawTmApp(t1, t2)
+
+lazy val pVar: Parsley[RawTmVar] = some(lower).map(x => RawTmVar(x.toString()))
+
+lazy val pAbs: Parsley[RawTmAbs] = for
+  _ <- char('\\')
+  v <- some(lower).map(_.toString())
+  _ <- char('.')
+  t <- p
+yield RawTmAbs(v,t)
 
 enum RawTerm:
   case RawTmVar(n: Name)
@@ -100,16 +93,6 @@ object Term:
     case TmApp(t1, t2) => reduce(ctx, t1).map2(Some(t2))(TmApp)
     case _             => None
 
-  // def reduce(t: Term): Term = t match
-  //   case TmApp(t @ (TmAbs(b)), t2) =>
-  //     if isVal(t2) then substTop(t2, b) else TmApp(t, reduce(t2))
-  //   case TmApp(t1, t2) => TmApp(reduce(t1), t2)
-
   def eval(ctx: Context, t: Term): Option[Term] = reduce(ctx,t) match
     case None => Some(t)
     case Some(t) => eval(ctx,t)
-
-// def eval(s: String): Option[Term] =
-//   p.parse(s) match
-//     case Success(t) => Some(Term.eval(Term.toNameless(t)))
-//     case _t                  => None
