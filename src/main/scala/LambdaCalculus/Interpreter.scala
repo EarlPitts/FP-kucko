@@ -13,6 +13,7 @@ import parsley.implicits.character.{charLift, stringLift}
 import Term.*
 import RawTerm.*
 
+// Parser
 lazy val p: Parsley[RawTerm] = pVar <|> pAbs <|> pApp
 
 lazy val pApp: Parsley[RawTmApp] = for
@@ -32,6 +33,7 @@ lazy val pAbs: Parsley[RawTmAbs] = for
   t <- p
 yield RawTmAbs(v, t)
 
+// Syntax
 enum RawTerm:
   case RawTmVar(n: Name)
   case RawTmApp(t1: RawTerm, t2: RawTerm)

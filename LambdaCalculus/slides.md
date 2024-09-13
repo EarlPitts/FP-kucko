@@ -1,9 +1,20 @@
+# Turing Machine
+
+- Alan Turing (1936)
+- State machine with infinite tape
+- Based on mutation
+- Operational/mechanical
+- Foundation for imperative languages
+
+---
+
 # Untyped Lambda Calculus
 
 - Alonzo Church (1936)
 - Turing complete
 - Church-Turing Theses
 - Mathematical Functions
+- Foundation for functional languages
 
 ---
 
@@ -14,15 +25,28 @@
 - Variables
 
 ```
-(λx.x)
-(λx.x) (λy.y)
+(λx.x)          // Abstraction
+(λx.x) (λy.y)   // Application
 ```
 ---
 
 # Currying
 
+- Every function has only one parameter
+- But we have syntax sugar:
+
 ```
 (λx.λy.x) -> (λxy.x)
+```
+
+---
+
+```scala
+def f[A](x: A, y: A): A
+def g[A](x: A)(y: A): A
+
+val f: [A] => (A, A) => A
+val g: [A] => A => A => A
 ```
 
 ---
@@ -33,7 +57,9 @@
     - Substitution
     - Capture avoidance
 - Normal form: lambda abstraction
-- Evaluation strategies
+- Evaluation strategies:
+  - Call-by-value (strict)
+  - Call-by-name (lazy)
 
 ---
 
