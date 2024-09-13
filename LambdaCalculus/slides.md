@@ -63,6 +63,8 @@ val g: [A] => A => A => A
 
 ---
 
+## Substitution
+
 ```
 M[x := N]
 
@@ -73,6 +75,8 @@ M[x := N]
 
 ---
 
+## Example
+
 ```
 ((λx.λy.x x) (λx.x)) (λx y.x y)
 (λy.(λx.x) (λx.x)) (λx y.x y)
@@ -82,8 +86,32 @@ M[x := N]
 
 ---
 
+# General Recusion
+
+- Y combinator (also Z for strict languages)
+- Y = λf.((λx.f (x x) (λx.f (x x))))
+
+---
+
+```
+λf.(λx.f (x x)) (λx.f (x x))
+λf.f((λx.f (x x)) (λx.f (x x)))
+λf.ff((λx.f (x x)) (λx.f (x x)))
+λf.fff((λx.f (x x)) (λx.f (x x)))
+λf.ffff((λx.f (x x)) (λx.f (x x)))
+...
+```
+---
+
+# Church Encoding
+
+- Representing data types with functions
+
+---
+
 # Combinatory Logic
 
+- No variables (only the arguments can be used)
 - SKI calculus
 - I = (λx.x)
 - K = (λxy.x)
@@ -122,31 +150,9 @@ S(SI(K(S(S(SSI)I))))
 
 ---
 
+# The Ultimate Turing Tarpit
+
 - Iota: a single combinator
-
----
-
-# General Recusion
-
-- Y combinator (also Z for strict languages)
-- Y = λf.((λx.f (x x) (λx.f (x x))))
-
----
-
-```
-λf.(λx.f (x x)) (λx.f (x x))
-λf.f((λx.f (x x)) (λx.f (x x)))
-λf.ff((λx.f (x x)) (λx.f (x x)))
-λf.fff((λx.f (x x)) (λx.f (x x)))
-λf.ffff((λx.f (x x)) (λx.f (x x)))
-...
-```
-
-
-
-# Church Encoding
-
-- Representing data types with functions
 
 ---
 
