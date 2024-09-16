@@ -164,4 +164,5 @@ S(SI(K(S(S(SSI)I))))
 - https://en.wikipedia.org/wiki/Iota_and_Jot
 - Benjamin Pierce: Types and Programming Languages
 - Tom Stuart: Understanding Computation
+- [Programming with Nothing](https://youtu.be/VUhlNx_-wYk?si=jmzNWwHkcskYMjZc)
 - https://en.wikipedia.org/wiki/Lambda_calculus
