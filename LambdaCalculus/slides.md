@@ -5,6 +5,7 @@
 - Based on mutation
 - Operational/mechanical
 - Foundation for imperative languages
+- Also for our physical computers
 
 ---
 
