@@ -42,3 +42,15 @@ toNum(scc(c2))
 toNum(scc(scc(c2)))
 
 toNum(plus[Int](c2)(c3))
+
+// Booleans with val :)
+val tru: [A] => A => A => A = [A] => (x: A) => (y: A) => x
+val fls: [A] => A => A => A = [A] => (x: A) => (y: A) => y
+
+val iff: [A] => (A => A => A) => A => A => A = [A] => (b: A => A => A) => (x: A) => (y: A) => b(x)(y)
+
+val and: [A] => (A => A => A) => (A => A => A) => (A => A => A) = [A] => (a: (A => A => A)) => (b: (A => A => A)) =>
+  x => y => a(b(x)(y))(fls(x)(y))
+
+val or: [A] => (A => A => A) => (A => A => A) => (A => A => A) = [A] => (a: (A => A => A)) => (b: (A => A => A)) =>
+  x => y => a(tru(x)(y))(b(x)(y))
