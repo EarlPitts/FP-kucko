@@ -11,13 +11,11 @@ import cats.implicits.*
 import cats.effect.*
 import cats.effect.unsafe.implicits.global
 import cats.data.EitherT
-
-import java.util.Date
-import scala.util.Try
-
 import cats.data.Validated.*
 import cats.data.Validated
 
+import java.util.Date
+import scala.util.Try
 
 // Unsafe vs Safe head
 List(1, 2, 3).head
@@ -28,13 +26,12 @@ Try(List().head)
 Try(List().headOption.get)
 
 // Java to Scala
-Try(3/0)
-Try(3/0).toOption
-Try(3/0).toEither
+lazy val veryDangerousExpression = 3/0
+Try(veryDangerousExpression)
+Try(veryDangerousExpression).toOption
+Try(veryDangerousExpression).toEither
 
 Option(null)
-
-Valid(3)
 
 // ApplicativeError and MonadError
 type EitherOr[A] = Either[String,A]
@@ -54,8 +51,6 @@ ApplicativeError[IO, Throwable].raiseError(new Exception("Fatal error"))
 ApplicativeThrow[IO].pure(2)
 ApplicativeThrow[EitherThrowable].pure(2)
 
-ApplicativeError[ValidatedOr, String].*>(Invalid("c"))(Invalid("b"))
-
 // Validated has no Monad/MonadError instance!
 // MonadError[ValidatedOr, String].pure(2)
 // MonadError[ValidatedOr, String].raiseError("Fatal error")
@@ -63,18 +58,47 @@ ApplicativeError[ValidatedOr, String].*>(Invalid("c"))(Invalid("b"))
 MonadError[EitherOr, String].pure(2)
 MonadError[EitherOr, String].raiseError("Fatal error")
 
-// ApplicativeThrow[F[_]] == ApplicativeError[F[_], Throwable]
+// MonadThrow[F[_]] == MonadError[F[_], Throwable]
 MonadThrow[IO].pure(2)
 MonadThrow[EitherThrowable].pure(2)
 
+// Syntax
 val badResult = "very bad error".raiseError
+val otherBadResult = "very bad error".raiseError[ValidatedOr, Int]
 badResult.handleError(errorStr => s"handled $errorStr")
+badResult.handleErrorWith(errorStr => Right(s"handled $errorStr"))
 
-Exception("big error").raiseError[IO, Int].attempt.unsafeRunSync()
+Exception("big error")
+  .raiseError[IO, Int]
+  .handleErrorWith(err => log("baj happened").as(3))
+  .unsafeRunSync()
+
+Exception("big error")
+  .raiseError[IO, Int]
+  .attempt                                         // Transforming to an Either
+  .unsafeRunSync()
+
+Exception("big error")
+  .raiseError[IO, Int]
+  .adaptError(err => new Exception("other error")) // Adapting errors for our domain
+  .attempt
+  .unsafeRunSync()
+
+Exception("big error")
+  .raiseError[IO, Int]
+  .onError(err => log("problem tortent"))
+  .attempt
+  .unsafeRunSync()
+
+// recover
+// recoverWith
+// redeem
+// rethrow
 
 type User = String
 
 object withIO:
+  // Has to extend Throwable
   case object WrongUserName extends RuntimeException("No user with that name")
   case object WrongPassword extends RuntimeException("Wrong password")
   case class ExpiredSubscription(expirationDate: Date)
@@ -108,6 +132,9 @@ val b = authenticate("a", "b").handleErrorWith {
 
 b.unsafeRunSync()
 
+// We get better type signatures,
+// warnings for inexhaustive pattern matches,
+// and more help from the compiler
 object withEither:
   sealed trait AuthenticationError
   case object WrongUserName extends AuthenticationError
@@ -137,6 +164,8 @@ withEither.authenticate("beep", "boop").handleError(errorHandler)
 def errorHandler(err: withEither.AuthenticationError): User = err match
   case withEither.WrongUserName => "kacsa"
 
+// Problem: we often want to have other effects too (e.g.: IO)
+// Solution: monad transformers
 object withEitherT:
   sealed trait AuthenticationError
   case object WrongUserName extends AuthenticationError
@@ -157,45 +186,11 @@ object withEitherT:
     for {
       user <- findUserByName(userName)
       _ <- EitherT(checkPassword(user, password))
+      // _ <- EitherT(log("did something").as(().asRight[AuthenticationError]))
+      // _ <- EitherT.liftF(log("did something"))
+      _ <- EitherT(checkPassword(user, password))
       _ <- EitherT(checkSubscription(user))
       _ <- EitherT(checkUserStatus(user))
     } yield user
 
 withEitherT.authenticate("beep", "boop").value.unsafeRunSync()
-
-// EitherT[Option, Int, Int].pure(3)
-3.pure: EitherT[Option, Int, Int]
-
-//
-// import cats.data.Validated
-// import cats.data.Validated.*
-// import cats.*
-// import cats.implicits.*
-//
-// enum ParsingError:
-//   case BadAge(s: String)
-//   case BadName
-//   case BadAddress
-//
-// import ParsingError.*
-//
-// type User = String
-//
-// BadAge("a") : ParsingError
-//
-// val res: Either[ParsingError, User] = Left(BadAddress)
-//
-// res.fold(handleError, identity)
-//
-// def handleError(e: ParsingError): String = e match
-//   case BadAddress => "The address was bad"
-//
-// def f(name: String): Validated[List[ParsingError], String] =
-//   if name == "john" then Valid("john") else Invalid(List(BadName))
-//
-// def g(addr: String): Validated[List[ParsingError], String] =
-//   if addr == "john street" then Valid("john street") else Invalid(List(BadAddress))
-//
-// type A = Validated[List[ParsingError], String]
-//
-// // ((x: String) => (y: String) => (x ++ y)) map f("john") <*> g("john street")

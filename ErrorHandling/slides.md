@@ -1,14 +1,3 @@
-- try:
-    - Working with java libs
-    - isomorphic to either
-- Parsing
-- safehead
-- Applicative vs Monad:
-    - Monad has shortcircuiting semantics
-- Technical failure vs. business edge case
-
----
-
 # Conventional Exceptions
 
 - GOTO-like semantics
@@ -96,10 +85,10 @@ def doSomething(): Either[InvalidResultError, Int] =
 
 # Java to Scala
 
-- Try
-- Option
-- toOption
-- toEither
+- `Try`
+- `Option`
+- `toOption`
+- `toEither`
 
 ---
 
@@ -117,12 +106,8 @@ trait ApplicativeError[F[_], E] extends Applicative[F] {
   //More functions elided
 }
 ```
+
 ---
-
-| ApplicativeError[E,_] | ApplicativeError[E,_] | ApplicativeError[E,_] |
-| MonadError[E,_] | MonadError[E,_] | MonadError[E,_] |
-| MonadThrow[_]   | MonadThrow[_]   | MonadThrow[_]   |
-
 
 # Cheat Sheet
 
