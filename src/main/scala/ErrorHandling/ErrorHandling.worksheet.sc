@@ -15,8 +15,8 @@ import cats.data.EitherT
 import java.util.Date
 import scala.util.Try
 
-// import cats.data.Validated.*
-// import cats.data.Validated
+import cats.data.Validated.*
+import cats.data.Validated
 
 
 // Unsafe vs Safe head
@@ -34,22 +34,43 @@ Try(3/0).toEither
 
 Option(null)
 
-// Valid(3)
+Valid(3)
 
-// type ErrorOr[A] = Either[String,A]
-// type ValidatedOr[A] = Validated[String, A]
-//
-// ApplicativeError[ErrorOr, String].pure(2)
-// ApplicativeError[ErrorOr, String].raiseError("Fatal error")
-//
-// ApplicativeError[ValidatedOr, String].pure(2)
-//
-// MonadError[ErrorOr, String].pure(2)
-// MonadError[ErrorOr, String].raiseError("Fatal error")
-//
-"sajt".raiseError
+// ApplicativeError and MonadError
+type EitherOr[A] = Either[String,A]
+type EitherThrowable[A] = Either[Throwable,A]
+type ValidatedOr[A] = Validated[String, A]
 
-Exception("sajt").raiseError[IO, Int].attempt.unsafeRunSync()
+ApplicativeError[ValidatedOr, String].pure(2)
+ApplicativeError[ValidatedOr, String].raiseError("Fatal error")
+
+ApplicativeError[EitherOr, String].pure(2)
+ApplicativeError[EitherOr, String].raiseError("Fatal error")
+
+ApplicativeError[IO, Throwable].pure(2)
+ApplicativeError[IO, Throwable].raiseError(new Exception("Fatal error"))
+
+// ApplicativeThrow[F[_]] == ApplicativeError[F[_], Throwable]
+ApplicativeThrow[IO].pure(2)
+ApplicativeThrow[EitherThrowable].pure(2)
+
+ApplicativeError[ValidatedOr, String].*>(Invalid("c"))(Invalid("b"))
+
+// Validated has no Monad/MonadError instance!
+// MonadError[ValidatedOr, String].pure(2)
+// MonadError[ValidatedOr, String].raiseError("Fatal error")
+
+MonadError[EitherOr, String].pure(2)
+MonadError[EitherOr, String].raiseError("Fatal error")
+
+// ApplicativeThrow[F[_]] == ApplicativeError[F[_], Throwable]
+MonadThrow[IO].pure(2)
+MonadThrow[EitherThrowable].pure(2)
+
+val badResult = "very bad error".raiseError
+badResult.handleError(errorStr => s"handled $errorStr")
+
+Exception("big error").raiseError[IO, Int].attempt.unsafeRunSync()
 
 type User = String
 
@@ -61,9 +82,9 @@ object withIO:
   case object BannedUser extends RuntimeException("User is banned")
 
   def findUserByName(username: String): IO[User] = WrongUserName.raiseError
-  def checkPassword(user: User, password: String): IO[Unit] = IO.unit
-  def checkSubscription(user: User): IO[Unit] = IO.unit
-  def checkUserStatus(user: User): IO[Unit] = IO.unit
+  def checkPassword(user: User, password: String): IO[Unit] = ???
+  def checkSubscription(user: User): IO[Unit] = ???
+  def checkUserStatus(user: User): IO[Unit] = ???
 
   def authenticate(userName: String, password: String): IO[User] =
     for {
@@ -78,11 +99,11 @@ import withIO.*
 def log(msg: String): IO[Unit] = IO.unit
 
 val a =
-  authenticate("a", "b").handleErrorWith(e => log(e.getMessage) >> "sajt".pure)
+  authenticate("admin", "12345").handleErrorWith(e => log(e.getMessage) >> "defaultUser".pure)
 
 val b = authenticate("a", "b").handleErrorWith {
-  case WrongPassword => log(WrongPassword.getMessage) >> "benaUser".pure
-  case _             => log("no idea") >> "benaUser".pure
+  case WrongPassword => log(WrongPassword.getMessage) >> "defaultUser".pure
+  case _             => log("badness happened") >> "noUser".pure
 }
 
 b.unsafeRunSync()
@@ -107,7 +128,14 @@ object withEither:
     _ <- checkUserStatus(user)
   } yield user
 
-withEither.authenticate("beep", "boop")
+withEither.authenticate("beep", "boop") match
+  case Left(withEither.WrongUserName) => "Wrong username!"
+  case Right(_) => ???
+
+withEither.authenticate("beep", "boop").handleError(errorHandler)
+
+def errorHandler(err: withEither.AuthenticationError): User = err match
+  case withEither.WrongUserName => "kacsa"
 
 object withEitherT:
   sealed trait AuthenticationError
@@ -117,16 +145,10 @@ object withEitherT:
       extends AuthenticationError
   case object BannedUser extends AuthenticationError
 
-  def findUserByName(username: String) =
-    EitherT[IO, AuthenticationError, User]("bela".asRight.pure)
-  def checkPassword(
-      user: User,
-      password: String
-  ): IO[Either[AuthenticationError, Unit]] = ().asRight.pure
-  def checkSubscription(user: User): IO[Either[AuthenticationError, Unit]] =
-    ().asRight.pure
-  def checkUserStatus(user: User): IO[Either[AuthenticationError, Unit]] =
-    ().asRight.pure
+  def findUserByName(username: String) = EitherT[IO, AuthenticationError, User]("bela".asRight.pure)
+  def checkPassword(user: User, password: String): IO[Either[AuthenticationError, Unit]] = ().asRight.pure
+  def checkSubscription(user: User): IO[Either[AuthenticationError, Unit]] = ().asRight.pure
+  def checkUserStatus(user: User): IO[Either[AuthenticationError, Unit]] = ().asRight.pure
 
   def authenticate(
       userName: String,
@@ -134,7 +156,6 @@ object withEitherT:
   ): EitherT[IO, AuthenticationError, User] =
     for {
       user <- findUserByName(userName)
-      _ <- EitherT.right(IO.unit)
       _ <- EitherT(checkPassword(user, password))
       _ <- EitherT(checkSubscription(user))
       _ <- EitherT(checkUserStatus(user))
