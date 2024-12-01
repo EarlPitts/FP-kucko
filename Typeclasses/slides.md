@@ -270,3 +270,4 @@ implicit def listEq[A](implicit equalA: Equal[A]): Equal[List[A]] = new Equal[Li
 - [George Wilson - Type Class: The Ultimate Ad Hoc](https://www.youtube.com/watch?v=2EdQFCP5mZ8)
 - [Typeclassopedia](https://wiki.haskell.org/Typeclassopedia)
 - Essential Scala: Type Classes fejezet
+- https://degoes.net/articles/when-to-typeclass
