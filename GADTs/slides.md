@@ -44,6 +44,7 @@ enum Sum:
 
 # GADTs
 
+- Generalised Algebraic Data Types
 - More detailed type constructors:
   - Refine the output type
 - The type of the GADT value can be determined by the constructor that created it

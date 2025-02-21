@@ -30,6 +30,11 @@ sendEmail(validatedEmail)
 
 // EmailAddress[Validated]("nemvalid") // Make it opaque
 
+// Type erasure gets rid of type argument
+// validatedEmail.isInstanceOf[EmailAddress[Validated]]
+// validatedEmail.isInstanceOf[EmailAddress[NotValidated]]
+// List(1,2,3).isInstanceOf[List[Boolean]]
+
 object Files:
   protected sealed trait Open
   protected sealed trait Closed
