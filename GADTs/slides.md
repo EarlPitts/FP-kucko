@@ -53,5 +53,6 @@ enum Sum:
 
 # Resources
 
-- https://wiki.haskell.org/GADTs_for_dummies - Haskell
-- https://dev.realworldocaml.org/gadts.html - OCaml
+- [GADTs for dummies](https://wiki.haskell.org/GADTs_for_dummies): Haskell
+- [Real World OCaml - GADTs](https://dev.realworldocaml.org/gadts.html): OCaml
+- [Thinking with Types](https://thinkingwithtypes.com/): Also haskell, book about type level programming
