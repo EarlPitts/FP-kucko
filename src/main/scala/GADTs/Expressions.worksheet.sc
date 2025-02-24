@@ -22,6 +22,7 @@ object Untyped:
       case _ => None
 
   // Scala also has union types, but we lose some type guarantees compared to tagged unions
+  // and we have to do some runtime checking
   // def eval(e: Expr): Option[Int | Boolean] = e match
   //   case Lit(n) => Some(n)
   //   case Add(n, m) =>
@@ -106,7 +107,7 @@ object Typed:
     case Mul(n, m) => eval(n) * eval(m)
     case IsZero(n) => eval(n) == 0
 
-// import Typed.*
+import Typed.*
 
 // val expr1 = Add(Lit(2), Lit(3))
 // val expr2 = IsZero(Add(Lit(2), Lit(3)))
