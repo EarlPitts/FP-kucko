@@ -243,8 +243,8 @@ implicit def listEq[A](implicit equalA: Equal[A]): Equal[List[A]] = new Equal[Li
 # Orphan Instances
 
 - ket helyen szokas typeclass instance-okat definialni:
-    - a typeclass mellett (modul, companion object, stb...)
-    - a definialt tipusunk mellett (modul, companion object, stb...)
+    - a typeclass mellett (modul, companion object stb...)
+    - a definialt tipusunk mellett (modul, companion object stb...)
 - ha mashova tesszuk, orphan instance lesz
 
 ---
