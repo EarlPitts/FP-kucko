@@ -108,6 +108,12 @@ def betterException(a: Int): Either[String, Int] =
 // exception(21)
 betterException(21)
 
+import scala.util.Try
+
+// We can convert to these if we have some Java API
+Option(partial(11))
+Try(exception(11)).toEither
+
 // For other effects (list, reader, writer, state)
 // see `Monads.worksheet.sc`
 
