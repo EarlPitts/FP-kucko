@@ -4,25 +4,34 @@
 - Mapping values to other values
 - If it can be replaced by a map, it's pure:
   - caching
-- Not enough:
-  - Lacks interaction with the outside world
-  - We want to see/use the results
-  - We want **effects**!
+- It's easy to reason about pure functions:
+  - We have the mathematical tools for it already
+  - We can provide proofs of correctness relatively easily
 
 ---
 
 # Reasoning
 
-- Substitution model
-- Local reasoning
-- Referential transparency
+- Substitution model:
+  - Expressions can be substituted by their results (normal form)
+  - It's a way to evaluate expressions
+- Local reasoning:
+  - We can reason in some local scope
+  - Don't have to consider the outside "world"
+- Referential transparency:
+  - We can inline definitions without changing semantics
+  - It's a property of expressions
+  - We need this to have the substitution model
 
 ---
 
 # Expressions
 
-- Functional programs are **expressions**
-- We run the program by **evaluating** the expression
+- Functional programs are **expressions**:
+  - Imperative ones are a mix of **statements** and expressions
+- We run the program by **evaluating** the expression:
+  - We use the substitution model
+  - We reduce expressions to their normal form step-by-step
 - Expressions (values) **compose**
 
 ---
@@ -37,6 +46,16 @@
 
 ---
 
+# The "Problem" with Purity
+
+- Purity is not enough
+- Lacks interaction with the outside world
+- We want to see/use the results
+- Pure functions can only heat up the CPU
+- We need **effects** to do anything that the *shareholders* want
+
+---
+
 # Effects
 
 - Partial functions
@@ -48,8 +67,6 @@
   - Getting the current time from the OS
   - Reading from/writing to stdin/stdout
   - Mutating values
-- We need effects to do anything that the *shareholders* want
-- Pure functions can only heat up the CPU
 
 ---
 
@@ -58,8 +75,8 @@
 > Effects are good. Side effects are bugs. - Rob Norris
 
 - Values vs. Statements:
-  - Functional Effects are values
   - Side-effects are statements
+  - Functional Effects are values
 - Values compose, statements not (as well):
   - You can only compose statements by sequencing them
   - In imperative-style code, sequencing is implicit (;)
@@ -117,7 +134,7 @@ trait Kleisli[F[_]]:
   def pure[A](a: A): F[A]
   
   // Composition
-  def >=>[A, B, C](f: A => F[B], g: B => F[C]): F[C]
+  def >=>[A, B, C](f: A => F[B], g: B => F[C]): A => F[C]
 ```
 
 ---
@@ -131,7 +148,8 @@ trait Kleisli[F[_]]:
 ---
 
 - Resources:
-  - [Functional Programming with Effects - Rob Norris](https://youtu.be/30q6BkBv5MY?si=fA2-bZyiKOb5SSlZ)
+  - [Functional Programming with Effects - Rob Norris](https://youtu.be/30q6BkBv5MY?si=fA2-bZyiKOb5SSlZ): More theoretical
+  - [Railway Oriented Programming - Scott Wlaschin](https://youtu.be/fYo3LN9Vf_M?feature=shared): Very down-to-earth
   - Essential Effects (first chapter)
   - [Magic Tricks with Functional Effects - John De Goes](https://www.youtube.com/watch?v=xpz4rf1RS8c&t=3762s&pp=ygUXam9obiBkZSBnb2VzIG1hZ2ljIHdpdGg%3D)
   - FP in scala (chapter 13)

@@ -72,6 +72,8 @@ def i: Boolean => Double = ???
 def leftAssoc = (f andThen g) andThen i
 def rightAssoc = f andThen (g andThen i)
 
+// # Side-Effect vs Managed Effect
+
 // ## Imperative programs
 
 def doSomething: Unit = ???
@@ -79,7 +81,12 @@ def doSomethingElse: Unit = ???
 
 def doBoth = { doSomething ; doSomethingElse }
 
-// # Side-Effect vs Managed Effect
+// Can we implement a function that changes the
+// order of these programs?
+// flipThem(doBoth)
+
+// Nope,
+// the effects have already happened at this point
 
 // ## Partiality
 
