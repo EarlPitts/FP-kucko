@@ -6,3 +6,5 @@
 - [Circe](src/main/scala/Circe/Circe.worksheet.sc)
 - [Functional Error Handling](ErrorHandling/slides.md)
 - [GADTs](GADTs/slides.md)
+- Function Effects:
+  - [Basics](FunctionalEffects/basics.md)
