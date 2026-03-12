@@ -1,3 +1,5 @@
+import cats.data.NonEmptyList
+
 def div(a: Int, b: Int): Int =
   a / b
 
@@ -5,6 +7,33 @@ def div(a: Int, b: Int): Int =
 // Pushing the responsibility to the consumer (downward)
 def safeDiv(a: Int, b: Int): Option[Int] =
   if b == 0 then None else Some(a / b)
+
+object Weaken:
+  type FilePath = String
+
+  def getConfigDirs: List[FilePath] =
+    val configDirsString = sys.env("CONFIG_DIRS")
+    val configDirList = configDirsString.split(",").toList
+    if configDirList.isEmpty
+    then throw new RuntimeException("CONFIG_DIRS cannot be empty")
+    else configDirList
+
+  def initializeCache: String => Unit = ???
+
+  def app: Unit =
+    val configDirs = getConfigDirs
+    configDirs.headOption match
+      case None => throw Exception("Cannot happen, we already checked!")
+      case Some(cacheDir) => initializeCache(cacheDir)
+
+  // This is annoying
+  // It also has redundant checks
+  // But worse still: if someone modifies getConfigDirs
+  // to not check for empty, but forgets to modify
+  // the call-site, it could cause a bug!
+
+  // We want to statically prove the impossibility,
+  // so a wrong usage would fail to compile
 
 case class NonZero(n: Int)
 
@@ -18,6 +47,50 @@ def safeDiv2(a: Int, b: NonZero): Int =
 
 // div(2,0)
 safeDiv(2, 0)
+
+object Strengthen:
+  type FilePath = String
+
+  def getConfigDirs: NonEmptyList[FilePath] =
+    val configDirsString = sys.env("CONFIG_DIRS")
+    val configDirList = configDirsString.split(",").toList
+    NonEmptyList.fromList(configDirList) match
+      case None => throw new RuntimeException("CONFIG_DIRS cannot be empty")
+      case Some(nonEmptyConfigDirList) => nonEmptyConfigDirList
+
+  def initializeCache: String => Unit = ???
+
+  def app: Unit =
+    val configDirs = getConfigDirs
+    initializeCache(configDirs.head)
+
+  // Information about the non-emptiness of
+  // the value is preserved inside the type-system
+
+  // Dropping the check forces the return type to change,
+  // which makes to program not compile if the call-site is not modified
+
+  // It's also trivial to get back the original
+  // weakened head, because our type has strictly
+  // more information about its values
+  def ourHeadOption[A](l: List[A]): Option[A] =
+    NonEmptyList
+      .fromList(l)
+      .map(_.head)
+
+// Validation vs. Parsing
+
+// In case of validating a value, we immediately lose
+// the information that it ever happened
+def validateNonEmpty[A]: List[A] => Unit =
+  case (_ :: _) => ()
+  case Nil      => throw new RuntimeException("List cannot be empty")
+
+// When parsing however, we retain this information
+// in the typesystem itself
+def parseNonEmpty[A]: List[A] => NonEmptyList[A] =
+  case (x :: xs) => NonEmptyList(x, xs)
+  case Nil       => throw new RuntimeException("List cannot be empty")
 
 // Making illegal states unrepresentable
 
@@ -52,4 +125,3 @@ object Good:
     def runSegment(s: Segment): Result = s match
       case Defined(d) => runDefinition(d)
       case Stored(t)  => runTemplate(t)
-

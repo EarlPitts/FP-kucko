@@ -1,12 +1,43 @@
+# original post:
+
+- type-driven design
+
+## partial functions
+
+- weaken the postconditions (promise):
+  - convenient when implementing
+  - harder every time when calling!
+- strenghten the preconditions:
+  - more structured data types
+  - more static information about values
+  - NonEmptyList[A] <=> List[A] + proof of non-emptiness
+  - NonZero <=> Int + proof of non-negativeness
+  - No redundant checks
+
+## Parsing vs Validation
+
 - parse, don't validate:
-  - https://www.harudagondi.space/blog/parse-dont-validate-and-type-driven-design-in-rust/
   - make illegal states unrepresentable
+  - capturing invariants in the type system
   - proving invariants should be done as early as possible
   - Shotgun parsing
 
-- Validating: Data -> Unit
-- Parsing: Data -> Option[StructuredData]
+## Validating
 
+- Data -> Unit
+- Information is lost
+- We have to validate again if we want to make sure
+- Nothing stops us from accidentally removing validations
+- Doesn't really take advantage of the type-system
+
+## Parsing
+
+- Data -> Option[StructuredData]
+- We *refine* the input type
+- We go from less to more structured data
+- The parser "gives us back" the information it learned
+
+- Let the type-system do the validation
 
 - Option fields:
   - Pushing the responsibility to the consumers
@@ -15,3 +46,10 @@
 - DDD:
   - We want to model the domain as close as possible
   - Segment without definition and template is invalid
+
+# References
+
+- https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/
+- https://lexi-lambda.github.io/blog/2020/11/01/names-are-not-type-safety/
+- https://www.harudagondi.space/blog/parse-dont-validate-and-type-driven-design-in-rust/
+- https://www.youtube.com/watch?v=IcgmSRJHu_8
