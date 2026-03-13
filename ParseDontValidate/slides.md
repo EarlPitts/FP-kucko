@@ -1,8 +1,4 @@
-# original post:
-
-- type-driven design
-
-## partial functions
+# Partial Functions
 
 - weaken the postconditions (promise):
   - convenient when implementing
@@ -14,7 +10,7 @@
   - NonZero <=> Int + proof of non-negativeness
   - No redundant checks
 
-## Parsing vs Validation
+# Parsing vs Validation
 
 - parse, don't validate:
   - make illegal states unrepresentable
@@ -22,7 +18,7 @@
   - proving invariants should be done as early as possible
   - Shotgun parsing
 
-## Validating
+# Validating
 
 - Data -> Unit
 - Information is lost
@@ -30,22 +26,35 @@
 - Nothing stops us from accidentally removing validations
 - Doesn't really take advantage of the type-system
 
-## Parsing
+# Parsing
 
 - Data -> Option[StructuredData]
 - We *refine* the input type
 - We go from less to more structured data
 - The parser "gives us back" the information it learned
-
+- Once we validated data with a parser, we don't have to do it again!
 - Let the type-system do the validation
+- Parsing at the edges -> we don't have to validate anything in the BL
+- Validation -> Execution
 
+# Shotgun "Parsing"
+
+- Validating code is spread across the program
+- Hpoing that it will catch invalid states before bad things happen
+- Can be too late
+- Errors can happen anywhere, so everything is more complex
+- Validation -> Execution -> Validation -> Execution -> ...
+
+# DDD
+
+- We want to model the domain as close as possible
+- We also want to get the data into the domain model as soon as possible:
+  - Parse at the system boundary into precise types
+- Segment without definition and template is invalid
 - Option fields:
   - Pushing the responsibility to the consumers
   - The type doesn't guarantee much
-
-- DDD:
-  - We want to model the domain as close as possible
-  - Segment without definition and template is invalid
+  - Use sum-types instead
 
 # References
 

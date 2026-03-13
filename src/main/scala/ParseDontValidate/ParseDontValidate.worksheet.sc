@@ -93,6 +93,9 @@ def parseNonEmpty[A]: List[A] => NonEmptyList[A] =
   case Nil       => throw new RuntimeException("List cannot be empty")
 
 // Making illegal states unrepresentable
+// Use encodings that guarantee that later
+// you can write total functions that act
+// upon them
 
 type Definition = String
 type Template = String
@@ -125,3 +128,35 @@ object Good:
     def runSegment(s: Segment): Result = s match
       case Defined(d) => runDefinition(d)
       case Stored(t)  => runTemplate(t)
+
+// Use smart-consctuctors and opaque types
+
+opaque type CustomerId = Int
+object CustomerId:
+  def apply(n: Int): Option[CustomerId] =
+    Option.when(n < 10000 && n > 0)(n)
+
+opaque type TemplateId = Int
+object TemplateId:
+  def apply(n: Int): Option[TemplateId] =
+    Option.when(n < 100 && n > 0)(n)
+
+opaque type BusinessAreaId = String
+object BusinessAreaId:
+  def apply(baString: String): Option[BusinessAreaId] =
+    Option.when {
+      baString.length < 10 &&
+      baString.forall(_.isLower)
+    }(baString)
+
+// In Scala 2
+// case class TemplateId(n: Int) extends AnyVal
+// object TemplateId:
+//   def apply(n: Int): Option[TemplateId] =
+//     Option.when(n < 100 && n > 0)(new TemplateId(n))
+
+case class Segment(
+    customerId: CustomerId,
+    templateId: TemplateId,
+    businessAreaId: BusinessAreaId
+)
