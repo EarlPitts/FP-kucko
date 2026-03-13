@@ -58,7 +58,6 @@
 
 # References
 
-- https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/
-- https://lexi-lambda.github.io/blog/2020/11/01/names-are-not-type-safety/
-- https://www.harudagondi.space/blog/parse-dont-validate-and-type-driven-design-in-rust/
-- https://www.youtube.com/watch?v=IcgmSRJHu_8
+- [Parse, Don't Validate](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/) - The original post
+- [Parse, Don't Validate and Type-Driven-Design in Rust](https://www.harudagondi.space/blog/parse-dont-validate-and-type-driven-design-in-rust/) - With Rust
+- [Making Impossible States Impossible - Richard Feldman](https://www.youtube.com/watch?v=IcgmSRJHu_8)
