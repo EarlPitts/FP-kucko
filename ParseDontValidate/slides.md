@@ -10,6 +10,8 @@
   - NonZero <=> Int + proof of non-negativeness
   - No redundant checks
 
+---
+
 # Parsing vs Validation
 
 - parse, don't validate:
@@ -18,6 +20,8 @@
   - proving invariants should be done as early as possible
   - Shotgun parsing
 
+---
+
 # Validating
 
 - Data -> Unit
@@ -25,6 +29,8 @@
 - We have to validate again if we want to make sure
 - Nothing stops us from accidentally removing validations
 - Doesn't really take advantage of the type-system
+
+---
 
 # Parsing
 
@@ -37,6 +43,8 @@
 - Parsing at the edges -> we don't have to validate anything in the BL
 - Validation -> Execution
 
+---
+
 # Shotgun "Parsing"
 
 - Validating code is spread across the program
@@ -44,6 +52,8 @@
 - Can be too late
 - Errors can happen anywhere, so everything is more complex
 - Validation -> Execution -> Validation -> Execution -> ...
+
+---
 
 # DDD
 
@@ -55,6 +65,8 @@
   - Pushing the responsibility to the consumers
   - The type doesn't guarantee much
   - Use sum-types instead
+
+---
 
 # References
 
