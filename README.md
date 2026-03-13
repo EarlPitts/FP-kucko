@@ -8,3 +8,4 @@
 - [GADTs](GADTs/slides.md)
 - Functional Effects:
   - [Basics](FunctionalEffects/basics.md)
+- [Parse, Don't Validate](ParseDontValidate/slides.md)
