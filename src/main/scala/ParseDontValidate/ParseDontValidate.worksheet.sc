@@ -1,16 +1,23 @@
 import cats.data.NonEmptyList
+import cats.implicits.*
+import io.circe.generic.semiauto.*, io.circe.syntax.*, io.circe.parser.*
+import io.circe.Decoder
+import CustomerId.*, TemplateId.*, BusinessAreaId.*
 
 def div(a: Int, b: Int): Int =
   a / b
 
 // Weakening the return type
-// Pushing the responsibility to the consumer (downward)
+// Pushing the responsibility to the consumer
 def safeDiv(a: Int, b: Int): Option[Int] =
-  if b == 0 then None else Some(a / b)
+  Option.unless(b == 0)(a / b)
 
-object Weaken:
+object Weaker:
+  // head -> headOption
+
   type FilePath = String
 
+  // We check if the list is empty
   def getConfigDirs: List[FilePath] =
     val configDirsString = sys.env("CONFIG_DIRS")
     val configDirList = configDirsString.split(",").toList
@@ -20,6 +27,7 @@ object Weaken:
 
   def initializeCache: String => Unit = ???
 
+  // We have to check it again...
   def app: Unit =
     val configDirs = getConfigDirs
     configDirs.headOption match
@@ -37,18 +45,22 @@ object Weaken:
 
 case class NonZero(n: Int)
 
-def mkNonZero(a: Int): Option[NonZero] =
-  if a == 0 then None else Some(NonZero(a))
+def mkNonZero(n: Int): Option[NonZero] =
+  Option.unless(n == 0)(NonZero(n))
 
 // Strengthening the parameter type
-// Pushing the responsibility to the caller (upwards)
+// Don't even accept bad data
 def safeDiv2(a: Int, b: NonZero): Int =
   a / b.n
 
 // div(2,0)
-safeDiv(2, 0)
+// safeDiv(2, 0)
+// safeDiv2(2,0)
 
-object Strengthen:
+object Stronger:
+
+  // head on NEL is total!
+
   type FilePath = String
 
   def getConfigDirs: NonEmptyList[FilePath] =
@@ -104,12 +116,17 @@ type Result = Int
 def runDefinition(d: Definition): Result = 10
 def runTemplate(d: Template): Result = 10
 
+val invalidSegmentString = "{}"
+val validSegmentString = "{\"definition\": \"kecske\"}"
+
 object Bad:
 
   case class Segment(
       definition: Option[Definition],
       template: Option[Template]
   )
+
+  implicit val decoder: Decoder[Segment] = deriveDecoder
 
   // Each time we run a segment, we have to validate
   // if the value represents a valid case of our domain
@@ -120,29 +137,41 @@ object Bad:
     then Some(runDefinition(s.definition.get))
     else Some(runTemplate(s.template.get))
 
+// decode[Bad.Segment](invalidSegmentString)
+
 object Good:
+  import Segment.*
+
   enum Segment:
     case Defined(definition: Definition)
     case Stored(template: Template)
 
-    def runSegment(s: Segment): Result = s match
-      case Defined(d) => runDefinition(d)
-      case Stored(t)  => runTemplate(t)
+  val definedDecoder: Decoder[Defined] = deriveDecoder
+  val storedDecoder: Decoder[Stored] = deriveDecoder
+  implicit val decoder: Decoder[Segment] =
+    definedDecoder.widen or
+      storedDecoder.widen
+
+  def runSegment(s: Segment): Result = s match
+    case Defined(d) => runDefinition(d)
+    case Stored(t)  => runTemplate(t)
+
+// decode[Good.Segment](invalidSegmentString)
 
 // Use smart-consctuctors and opaque types
 
-opaque type CustomerId = Int
 object CustomerId:
+  opaque type CustomerId = Int
   def apply(n: Int): Option[CustomerId] =
     Option.when(n < 10000 && n > 0)(n)
 
-opaque type TemplateId = Int
 object TemplateId:
+  opaque type TemplateId = Int
   def apply(n: Int): Option[TemplateId] =
     Option.when(n < 100 && n > 0)(n)
 
-opaque type BusinessAreaId = String
 object BusinessAreaId:
+  opaque type BusinessAreaId = String
   def apply(baString: String): Option[BusinessAreaId] =
     Option.when {
       baString.length < 10 &&

@@ -1,9 +1,9 @@
 # Partial Functions
 
-- weaken the postconditions (promise):
+- Weaken the postconditions (promise):
   - convenient when implementing
   - harder every time when calling!
-- strenghten the preconditions:
+- Strenghten the preconditions:
   - more structured data types
   - more static information about values
   - NonEmptyList[A] <=> List[A] + proof of non-emptiness
@@ -12,19 +12,9 @@
 
 ---
 
-# Parsing vs Validation
-
-- parse, don't validate:
-  - make illegal states unrepresentable
-  - capturing invariants in the type system
-  - proving invariants should be done as early as possible
-  - Shotgun parsing
-
----
-
 # Validating
 
-- Data -> Unit
+- Data -> Option[Unit]
 - Information is lost
 - We have to validate again if we want to make sure
 - Nothing stops us from accidentally removing validations
@@ -39,8 +29,10 @@
 - We go from less to more structured data
 - The parser "gives us back" the information it learned
 - Once we validated data with a parser, we don't have to do it again!
-- Let the type-system do the validation
-- Parsing at the edges -> we don't have to validate anything in the BL
+- Let the type-system do the validation:
+  - capturing invariants in the type system
+- Parsing at the edges -> we don't have to validate anything in the BL:
+  - proving invariants should be done as early as possible
 - Validation -> Execution
 
 ---
@@ -48,9 +40,10 @@
 # Shotgun "Parsing"
 
 - Validating code is spread across the program
-- Hpoing that it will catch invalid states before bad things happen
+- Hoping that it will catch invalid states before bad things happen
 - Can be too late
-- Errors can happen anywhere, so everything is more complex
+- Errors can happen anywhere, so everything is more complex:
+  - capturing complexity inside the parser <-> scatter it everywhere
 - Validation -> Execution -> Validation -> Execution -> ...
 
 ---
